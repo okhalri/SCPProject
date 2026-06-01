@@ -4,3 +4,6 @@ if not game:IsLoaded() then
 end
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local _ActorSystem = require(ReplicatedStorage.ActorSystem.ActorClient)
+local _Testing = require(ReplicatedStorage.Testing)

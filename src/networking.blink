@@ -1,0 +1,26 @@
+option TypesOutput = "ReplicatedStorage/Blink/Types.luau"
+option ServerOutput = "ServerStorage/Blink/Server.luau"
+option ClientOutput = "ReplicatedStorage/Blink/Client.luau"
+
+scope ActorSystem {
+    event RequestSCP {
+        From: Client,
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: u16
+    }
+
+    event ResponseSCP {
+        From: Server,
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: struct {
+            Allowed: boolean,
+            Reason: string?
+        }
+    }
+}
+
+scope GunSystem {
+
+}
