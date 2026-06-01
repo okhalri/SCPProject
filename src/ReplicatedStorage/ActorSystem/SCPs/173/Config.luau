@@ -11,5 +11,8 @@ return {
 	MaxSCP = 1,
 	RequiredRank = 1,
 	SpecialAuth = {},
-	Cooldowns = {}
+	Cooldowns = {
+		Move = 1,
+		ForceBlink = 15
+	}
 } :: Types.SCPConfig

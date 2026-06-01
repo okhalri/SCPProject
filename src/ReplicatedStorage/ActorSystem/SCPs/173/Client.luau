@@ -10,7 +10,7 @@
 	
 	halri :3
 ]]
-local Players = game:GetService("Players")
+const Players = game:GetService("Players")
 const RunService = game:GetService("RunService")
 const ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -19,9 +19,14 @@ const Blink = require(ReplicatedStorage.Blink.Client)
 const ActorSystem = ReplicatedStorage.ActorSystem
 const Types = require(ActorSystem.Types)
 
+const Assets = ReplicatedStorage.Assets :: Folder
+const SCP173Assets = Assets["173"] :: Folder
+
 const State = {
-	LastMove = 0,
 	BeingObserved = false,
+	Cooldowns = {
+		
+	}
 }
 
 const Player = Players.LocalPlayer :: Player
@@ -39,9 +44,31 @@ const function GetSCPModel()
 	return Player.Character :: Model & {HumanoidRootPart: BasePart}
 end
 
+const function MakeDisplay(character: Model)
+	const head = character:FindFirstChild("Head") :: BasePart
+	if not head then
+		return
+	end
+	--TODO: get head visual name and type this properly.
+	DisplayPersistence[character] = (SCP173Assets :: any).Thing:Clone()
+	DisplayPersistence[character].Parent = head
+end
+
 const function UpdateDisplay(Characters: {Model})
 	for i, character in Characters do
-		
+		if DisplayPersistence[character] then
+			continue
+		end
+		MakeDisplay(character)
+	end
+
+	for character, Attachment in DisplayPersistence do
+		if table.find(Characters, character) then
+			continue
+		end
+
+		Attachment:Destroy()
+		DisplayPersistence[character] = nil
 	end
 end
 
@@ -74,6 +101,7 @@ const function Update(dt: number)
 	end
 
 	State.BeingObserved = #LookingAt173 ~= 0
+	UpdateDisplay(LookingAt173)
 end
 
 const function BuildConnections()
