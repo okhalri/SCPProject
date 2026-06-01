@@ -10,7 +10,7 @@
 	
 	halri :3
 ]]
-
+local Players = game:GetService("Players")
 const RunService = game:GetService("RunService")
 const ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -21,14 +21,59 @@ const Types = require(ActorSystem.Types)
 
 const State = {
 	LastMove = 0,
-	
+	BeingObserved = false,
 }
+
+const Player = Players.LocalPlayer :: Player
+
+const CharacterFolder = workspace.Characters :: Folder
+const NPCFolder = workspace.NPCs :: Folder
+const SCPFolder = workspace.SCPs :: Folder
 
 const Connections: {RBXScriptConnection} = {}
 const Instances: {Instance} = {}
 
+const DisplayPersistence: {[Model]: Attachment} = {}
+
+const function GetSCPModel()
+	return Player.Character :: Model & {HumanoidRootPart: BasePart}
+end
+
+const function UpdateDisplay(Characters: {Model})
+	for i, character in Characters do
+		
+	end
+end
+
 const function Update(dt: number)
-	
+	const LookingAt173: {Model} = {}
+
+	for i, CharacterModel in CharacterFolder:GetChildren() do
+		if not CharacterModel:IsA("Model") then
+			continue
+		end
+
+		const Head = CharacterModel:FindFirstChild("Head") :: BasePart
+		if not Head then
+			continue
+		end
+
+		const HeadLookVector = Head.CFrame.LookVector
+		const SCPModel = GetSCPModel()
+		const LookVector = (SCPModel.HumanoidRootPart.Position - Head.Position).Unit
+		if HeadLookVector:Dot(LookVector) < .3 then
+			continue
+		end
+
+		const RayResult = workspace:Raycast(Head.Position, LookVector * 100)
+		if not RayResult or RayResult.Instance ~= SCPModel.HumanoidRootPart then
+			continue
+		end
+
+		table.insert(LookingAt173, CharacterModel)
+	end
+
+	State.BeingObserved = #LookingAt173 ~= 0
 end
 
 const function BuildConnections()
@@ -58,11 +103,11 @@ end
 const Public = {} :: Types.ClientSCP
 
 function Public.Load()
-	print("loaded 173 controller")
+	BuildConnections()
 end
 
 function Public.Unload()
-	
+	CleanUp()
 end
 
 return Public
