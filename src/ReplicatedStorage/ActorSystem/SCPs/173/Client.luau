@@ -25,7 +25,7 @@ const SCP173Assets = Assets["173"] :: Folder
 const State = {
 	BeingObserved = false,
 	Cooldowns = {
-		
+
 	}
 }
 
@@ -44,6 +44,7 @@ const function GetSCPModel()
 	return Player.Character :: Model & {HumanoidRootPart: BasePart}
 end
 
+--TODO: Implement sound display
 const function MakeDisplay(character: Model)
 	const head = character:FindFirstChild("Head") :: BasePart
 	if not head then
