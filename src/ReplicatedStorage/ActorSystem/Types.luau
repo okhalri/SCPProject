@@ -2,7 +2,8 @@
 export type ServerSCP = {
 	CanPlayAs: (Player: Player) -> (boolean),
 	LoadCharacter: (Player: Player, ActorProfile: ActorData) -> (),
-	UnloadCharacter: (Player: Player, ActorProfile: ActorData) -> ()
+	UnloadCharacter: (Player: Player, ActorProfile: ActorData) -> (),
+	UseMove: (Player: Player, ActorProfile: ActorData, Move: string, ...any) -> (),
 }
 
 export type ClientSCP = {

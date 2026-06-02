@@ -41,9 +41,7 @@ const SCPFolder = workspace.SCPs :: Folder
 const Connections: {RBXScriptConnection} = {}
 const Instances: {Instance} = {}
 
-const ObservationParams = RaycastParams.new()
-ObservationParams.FilterType = Enum.RaycastFilterType.Exclude
-ObservationParams.FilterDescendantsInstances = {CharacterFolder, NPCFolder, SCPFolder}
+const SharedUtils = require(script.Parent.SharedUtils)
 
 const TeleportParams = RaycastParams.new()
 TeleportParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -55,18 +53,15 @@ const function GetSCPModel()
 	return Player.Character :: Model & {HumanoidRootPart: BasePart}
 end
 
---TODO: Implement sound display
 const function MakeDisplay(character: Model)
 	const head = character:FindFirstChild("Head") :: BasePart
 	if not head then
 		return
 	end
-	--TODO: get head visual name and type this properly.
+
 	DisplayPersistence[character] = Observation:Clone()
 	DisplayPersistence[character].Parent = head
 end
-
-
 
 const function GetTeleportPosition()
 	const MouseHit = ClientUtils.GetMouseRaycastResult(100, TeleportParams)
@@ -92,25 +87,9 @@ const function UpdateDisplay(Characters: {Model})
 	end
 end
 
-const function ObservationRaycast(origin: Vector3, LookVector: Vector3, lookingFor: BasePart)
-	const RayResult = workspace:Raycast(origin, LookVector * 100, ObservationParams)
 
-	if RayResult then
-		if RayResult.Instance == lookingFor then
-			return true
-		elseif RayResult.Instance.Transparency >= .1 then
-			table.insert(ObservationParams.FilterDescendantsInstances, RayResult.Instance)
-			return ObservationRaycast(origin, LookVector, lookingFor)
-		end
-	end
-
-	return false
-end
-
-const function Update(dt: number)
-	const LookingAt173: {Model} = {}
-
-	for i, CharacterModel in CharacterFolder:GetChildren() do
+const function Iterate(LookingAt173: {Model}, Children: {Instance})
+	for i, CharacterModel in Children do
 		if not CharacterModel:IsA("Model") then
 			continue
 		end
@@ -120,30 +99,51 @@ const function Update(dt: number)
 			continue
 		end
 
-		const HeadLookVector = Head.CFrame.LookVector
 		const SCPModel = GetSCPModel()
-		const LookVector = (SCPModel.HumanoidRootPart.Position - Head.Position).Unit
+		const DisplacementVector = (SCPModel.HumanoidRootPart.Position - Head.Position)
+		if DisplacementVector.Magnitude > 200 then
+			continue
+		end
+
+		const HeadLookVector = Head.CFrame.LookVector
+		const LookVector = DisplacementVector.Unit
 		if HeadLookVector:Dot(LookVector) < .3 then
 			continue
 		end
 
-		if ObservationRaycast(Head.Position, LookVector, SCPModel.HumanoidRootPart) then
+		if SharedUtils.ObservationRaycast(Head.Position, LookVector, SCPModel.HumanoidRootPart) then
 			table.insert(LookingAt173, CharacterModel)
 		end
 	end
+end
+
+const function Update(dt: number)
+	const LookingAt173: {Model} = {}
+
+	Iterate(LookingAt173, CharacterFolder:GetChildren())
+	Iterate(LookingAt173, NPCFolder:GetChildren())
+	Iterate(LookingAt173, SCPFolder:GetChildren())
 
 	State.BeingObserved = #LookingAt173 ~= 0
 	UpdateDisplay(LookingAt173)
 end
 
+const function ProcessInput(InputObject: InputObject, gpe: boolean)
+	if gpe then return end
+	if InputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+		if State.BeingObserved then
+			return
+		end
+		const Goal = GetTeleportPosition()
+		if Goal then
+			Blink.ActorSystem.RequestMove.Fire({Move = "Move", Data = Goal})
+		end
+	end
+end
+
 const function BuildConnections()
 	RunService:BindToRenderStep("173Update", 1, Update)
-	table.insert(Connections, UserInputService.InputBegan:Connect(function(InputObject: InputObject, gpe: boolean)
-		if not gpe then return end
-		if InputObject.UserInputType == Enum.UserInputType.MouseButton1 then
-			
-		end
-	end))
+	table.insert(Connections, UserInputService.InputBegan:Connect(ProcessInput))
 end
 
 const function CleanUp()

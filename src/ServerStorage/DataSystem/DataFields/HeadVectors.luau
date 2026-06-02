@@ -39,7 +39,7 @@ const function Update()
 			return
 		end
 		
-		HeadVectors.Data.Players[Player] = Head.CFrame.LookVector
+		HeadVectors.Data.Players[Player] = {LookVector = Head.CFrame.LookVector, Position = Head.Position}
 	end
 	
 	--[[

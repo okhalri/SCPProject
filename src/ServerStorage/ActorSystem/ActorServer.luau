@@ -91,8 +91,16 @@ function ActorServer.RequestCharacter(player: Player, scp: number)
 	})
 end
 
+function ActorServer.RequestMove(player: Player, value: {Data: any, Move: string})
+	const ActorData = CurrentActors[player]
+	if not ActorData then
+		--TODO: Integrate into a shared weird behavior logging system.
+		player:Kick("Onion sandwich")
+	end
+end
+
 MessageProvider.playerRemoving:connect(RemoveFromCurrentActors)
 MessageProvider.characterDied:connect(RemoveFromCurrentActors)
 Blink.ActorSystem.RequestSCP.On(ActorServer.RequestCharacter)
-
+Blink.ActorSystem.RequestMove.On(ActorServer.RequestMove)
 return ActorServer 

@@ -19,6 +19,27 @@ scope ActorSystem {
             Reason: string?
         }
     }
+
+    event RequestMove {
+        From: Client,
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: struct {
+            Move: string,
+            Data: unknown
+        }
+    }
+
+    event ResponseMove {
+        From: Client,
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: struct {
+            Move: string,
+            Allowed: boolean,
+            Reason: string?
+        }
+    }
 }
 
 scope GunSystem {
