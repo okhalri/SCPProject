@@ -22,7 +22,8 @@ const ActorSystem = ReplicatedStorage.ActorSystem
 const Types = require(ActorSystem.Types)
 
 const Assets = ReplicatedStorage.Assets :: Folder
-const SCP173Assets = Assets["173"] :: Folder
+const SCP173Assets = Assets:FindFirstChild("173") :: Folder
+const Observation = SCP173Assets:FindFirstChild("Observation") :: Attachment
 
 const State = {
 	BeingObserved = false,
@@ -40,6 +41,14 @@ const SCPFolder = workspace.SCPs :: Folder
 const Connections: {RBXScriptConnection} = {}
 const Instances: {Instance} = {}
 
+const ObservationParams = RaycastParams.new()
+ObservationParams.FilterType = Enum.RaycastFilterType.Exclude
+ObservationParams.FilterDescendantsInstances = {CharacterFolder, NPCFolder, SCPFolder}
+
+const TeleportParams = RaycastParams.new()
+TeleportParams.FilterType = Enum.RaycastFilterType.Exclude
+TeleportParams.FilterDescendantsInstances = {CharacterFolder, NPCFolder, SCPFolder}
+
 const DisplayPersistence: {[Model]: Attachment} = {}
 
 const function GetSCPModel()
@@ -53,12 +62,16 @@ const function MakeDisplay(character: Model)
 		return
 	end
 	--TODO: get head visual name and type this properly.
-	DisplayPersistence[character] = (SCP173Assets :: any).Thing:Clone()
+	DisplayPersistence[character] = Observation:Clone()
 	DisplayPersistence[character].Parent = head
 end
 
+
+
 const function GetTeleportPosition()
-	
+	const MouseHit = ClientUtils.GetMouseRaycastResult(100, TeleportParams)
+
+	return MouseHit and MouseHit.Position
 end
 
 const function UpdateDisplay(Characters: {Model})
@@ -77,6 +90,21 @@ const function UpdateDisplay(Characters: {Model})
 		Attachment:Destroy()
 		DisplayPersistence[character] = nil
 	end
+end
+
+const function ObservationRaycast(origin: Vector3, LookVector: Vector3, lookingFor: BasePart)
+	const RayResult = workspace:Raycast(origin, LookVector * 100, ObservationParams)
+
+	if RayResult then
+		if RayResult.Instance == lookingFor then
+			return true
+		elseif RayResult.Instance.Transparency >= .1 then
+			table.insert(ObservationParams.FilterDescendantsInstances, RayResult.Instance)
+			return ObservationRaycast(origin, LookVector, lookingFor)
+		end
+	end
+
+	return false
 end
 
 const function Update(dt: number)
@@ -99,12 +127,9 @@ const function Update(dt: number)
 			continue
 		end
 
-		const RayResult = workspace:Raycast(Head.Position, LookVector * 100)
-		if not RayResult or RayResult.Instance ~= SCPModel.HumanoidRootPart then
-			continue
+		if ObservationRaycast(Head.Position, LookVector, SCPModel.HumanoidRootPart) then
+			table.insert(LookingAt173, CharacterModel)
 		end
-
-		table.insert(LookingAt173, CharacterModel)
 	end
 
 	State.BeingObserved = #LookingAt173 ~= 0
@@ -119,10 +144,6 @@ const function BuildConnections()
 			
 		end
 	end))
-end
-
-const function BuildInstances()
-	
 end
 
 const function CleanUp()
