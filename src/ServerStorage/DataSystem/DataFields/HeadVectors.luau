@@ -16,7 +16,7 @@ const Scheduler = require(Dependencies.Scheduler)
 
 const DataSystem = ServerStorage.DataSystem
 const Types = require(DataSystem.Types)
---const NPCFolder = workspace -- TODO: implement an NPC folder.
+const NPCFolder = workspace.NPCs
 const SchedulerId = "DataServer.HeadVector.Update"
 
 const HeadVectors = {
@@ -42,8 +42,6 @@ const function Update()
 		HeadVectors.Data.Players[Player] = {LookVector = Head.CFrame.LookVector, Position = Head.Position}
 	end
 	
-	--[[
-		-- TODO: Uncomment once NPC folder is implemented.
 	const NPCList = NPCFolder:GetChildren()
 	table.clear(HeadVectors.Data.NPCs)
 	for _, NPC in NPCList do
@@ -55,9 +53,8 @@ const function Update()
 			return
 		end
 
-		HeadVectors.Data.NPCs[NPC] = Head.CFrame.LookVector
+		HeadVectors.Data.NPCs[NPC] = {LookVector = Head.CFrame.LookVector, Position = Head.Position}
 	end
-	]]
 end
 
 function HeadVectors.load()

@@ -17,7 +17,7 @@ SharedUtils.ObservationParams.FilterDescendantsInstances = {CharacterFolder, NPC
 function SharedUtils.ObservationRaycast(origin: Vector3, LookVector: Vector3, lookingFor: BasePart)
 	const RayResult = workspace:Raycast(origin, LookVector * 100, SharedUtils.ObservationParams)
 
-	if RayResult then
+	if RayResult and RayResult.Instance then
 		if RayResult.Instance == lookingFor then
 			return true
 		elseif RayResult.Instance.Transparency >= .1 then

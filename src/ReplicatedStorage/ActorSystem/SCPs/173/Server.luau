@@ -20,6 +20,7 @@ const ActorSystem = ReplicatedStorage.ActorSystem
 const Types = require(ActorSystem.Types)
 const Public = {} :: Types.ServerSCP
 
+const Config = require(script.Parent.Config)
 const SharedUtils = require(script.Parent.SharedUtils)
 
 local function iterate(HRP: BasePart, Iter: {[any]: {Position: Vector3, LookVector: Vector3}}): boolean
@@ -55,7 +56,7 @@ const function Move(Player: Player, ActorProfile: Types.ActorData, Goal: Vector3
 		return false, "How did we get here?"
 	end
 
-	if typeof(Goal) ~= "vector" then
+	if typeof(Goal) ~= "Vector3" and typeof(Goal) ~= "vector" then
 		--TODO: Integrate into a shared weird behavior logging system.
 		Player:Kick("baka~!")
 		return false, "Stinkin' cheater."
@@ -71,7 +72,7 @@ const function Move(Player: Player, ActorProfile: Types.ActorData, Goal: Vector3
 	end
 
 	const Rotation = CFrame.new(Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1), Goal * Vector3.new(1, 0, 1)).Rotation
-	Character:PivotTo(CFrame.new(Goal) * Rotation)
+	Character:PivotTo(CFrame.new(Goal + Vector3.new(0, 3.5, 0)) * Rotation)
 
 	return true
 end
@@ -90,9 +91,25 @@ function Public.UnloadCharacter(Player: Player)
 	
 end
 
+const function SetCooldownOnPass<T...>(ActorProfile: Types.ActorData, Move: string, fn: (T...) -> (boolean, string?), ...: T...): (boolean, string?)
+	const accepted, notice = fn(...)
+
+	if accepted then
+		ActorProfile.Cooldowns[Move] = os.clock() + Config.Cooldowns[Move]
+	end
+
+	return accepted, notice
+end
+
 function Public.UseMove(Player: Player, ActorProfile: Types.ActorData, DesiredMove: string, ...): (boolean, string?)
+	const OnCDUntil = ActorProfile.Cooldowns[DesiredMove] or 0
+
+	if OnCDUntil >= os.clock() then
+		return false, "Move is on CD."
+	end
+
 	if DesiredMove == "Move" then
-		return Move(Player, ActorProfile, ...)
+		return SetCooldownOnPass(ActorProfile, DesiredMove, Move, Player, ActorProfile, ...)
 	end
 
 	--TODO: Integrate into a shared weird behavior logging system.

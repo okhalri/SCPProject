@@ -47,7 +47,7 @@ const TeleportParams = RaycastParams.new()
 TeleportParams.FilterType = Enum.RaycastFilterType.Exclude
 TeleportParams.FilterDescendantsInstances = {CharacterFolder, NPCFolder, SCPFolder}
 
-const DisplayPersistence: {[Model]: Attachment} = {}
+const DisplayPersistence: {[Model]: Attachment & {Sound: Sound}} = {}
 
 const function GetSCPModel()
 	return Player.Character :: Model & {HumanoidRootPart: BasePart}
@@ -59,8 +59,10 @@ const function MakeDisplay(character: Model)
 		return
 	end
 
-	DisplayPersistence[character] = Observation:Clone()
+	DisplayPersistence[character] = Observation:Clone() :: any
 	DisplayPersistence[character].Parent = head
+	
+	DisplayPersistence[character].Sound:Play()
 end
 
 const function GetTeleportPosition()
@@ -129,6 +131,7 @@ const function Update(dt: number)
 end
 
 const function ProcessInput(InputObject: InputObject, gpe: boolean)
+	print(InputObject.UserInputType, InputObject.KeyCode, gpe)
 	if gpe then return end
 	if InputObject.UserInputType == Enum.UserInputType.MouseButton1 then
 		if State.BeingObserved then

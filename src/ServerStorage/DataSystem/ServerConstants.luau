@@ -14,5 +14,5 @@ end
 return {
     ServerId = GeneratedServerId(),
     Region = GetServerRegion(),
-    ServerInitTime = os.time()
+    ServerInitTime = os.clock()
 }
