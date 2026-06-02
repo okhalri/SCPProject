@@ -13,6 +13,7 @@ return {
 	SpecialAuth = {},
 	Cooldowns = {
 		Move = 1,
-		ForceBlink = 15
+		ForceBlink = 15,
+		EMPBurst = 45,
 	}
 } :: Types.SCPConfig

@@ -13,8 +13,10 @@
 const Players = game:GetService("Players")
 const RunService = game:GetService("RunService")
 const ReplicatedStorage = game:GetService("ReplicatedStorage")
+const UserInputService = game:GetService("UserInputService")
 
 const Blink = require(ReplicatedStorage.Blink.Client)
+const ClientUtils = require(ReplicatedStorage.ClientUtils)
 
 const ActorSystem = ReplicatedStorage.ActorSystem
 const Types = require(ActorSystem.Types)
@@ -53,6 +55,10 @@ const function MakeDisplay(character: Model)
 	--TODO: get head visual name and type this properly.
 	DisplayPersistence[character] = (SCP173Assets :: any).Thing:Clone()
 	DisplayPersistence[character].Parent = head
+end
+
+const function GetTeleportPosition()
+	
 end
 
 const function UpdateDisplay(Characters: {Model})
@@ -107,6 +113,12 @@ end
 
 const function BuildConnections()
 	RunService:BindToRenderStep("173Update", 1, Update)
+	table.insert(Connections, UserInputService.InputBegan:Connect(function(InputObject: InputObject, gpe: boolean)
+		if not gpe then return end
+		if InputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+			
+		end
+	end))
 end
 
 const function BuildInstances()
