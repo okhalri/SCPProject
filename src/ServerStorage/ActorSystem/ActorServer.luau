@@ -96,7 +96,15 @@ function ActorServer.RequestMove(player: Player, value: {Data: any, Move: string
 	if not ActorData then
 		--TODO: Integrate into a shared weird behavior logging system.
 		player:Kick("Onion sandwich")
+		return
 	end
+
+	const MoveAccepted, Notice = SCPData[ActorData.PlayingAs].Server.UseMove(player, ActorData, value.Move, value.Data)
+	Blink.ActorSystem.ResponseMove.Fire(player, {
+		Move = value.Move,
+		Allowed = MoveAccepted,
+		Reason = Notice
+	})
 end
 
 MessageProvider.playerRemoving:connect(RemoveFromCurrentActors)

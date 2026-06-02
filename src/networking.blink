@@ -31,7 +31,7 @@ scope ActorSystem {
     }
 
     event ResponseMove {
-        From: Client,
+        From: Server,
         Type: Reliable,
         Call: SingleAsync,
         Data: struct {
