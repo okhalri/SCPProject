@@ -2,7 +2,6 @@
 local players = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 
-
 local signal = require(replicatedStorage.Dependencies.Signal)
 
 local messageSent: signal.Signal<Player, string, Player?> = signal.new()

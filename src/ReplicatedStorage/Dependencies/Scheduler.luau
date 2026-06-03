@@ -69,7 +69,7 @@ function scheduler.add(id: string, delay: number, fn: (dt: number) -> ())
 	}
 	
 	if next(scheduled, next(scheduled) :: string) then
-		local nextId, waitTime = findNext()
+		local nextId, _ = findNext()
 		
 		if nextId == id then
 			task.cancel(thread)

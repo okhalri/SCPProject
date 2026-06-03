@@ -53,13 +53,7 @@
 			connected: boolean,
 		The amount of times the signal has been called.
 			calls: number,
-			
-	The private types are internal types. It's best to ignore them as they do not display in
-	intellisense, but I am not your mom so do as you'd wish. It's not like luau has a clean way
-	to do clean private elements or methods.
-	
-	If you have questions or issues message @old username on discord or any other member of the game i program for team.
-	
+
 	@%%%%%%%%%%%%%%%%@@%%%%%%%%%%##########*#================================++++
 	%%%%%%%%%%%%%%%%@@%%%%%%%%%%@####%#######=+=====+==========================++
 	%%%%%%%%%%%%%%%@@@%%%%%%%%%%@##%#####%###==*=====+======+===================+
@@ -147,7 +141,7 @@ local function disconnectAll<T...>(signal: privateSignal<T...>)
 	local connection = signal.tail
 	while connection do
 		if connection.calls == -1 then
-			connection.callback(nil)
+			connection.callback()
 		end
 
 		connection = connection.next
