@@ -11,9 +11,10 @@ return {
 	MaxSCP = 1,
 	RequiredRank = 1,
 	SpecialAuth = {},
+	MaxHP = 280000,
 	Cooldowns = {
 		Move = 1,
 		ForceBlink = 15,
-		EMPBurst = 45,
+		EMP = 45,
 	}
 } :: Types.SCPConfig

@@ -13,6 +13,7 @@ export type ClientSCP = {
 
 export type SCPConfig = {
 	MaxSCP: number,
+	MaxHP: number,
 	RequiredRank: number,
 	SpecialAuth: {boolean},
 	Cooldowns: {[string]: number}
