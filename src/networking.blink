@@ -42,6 +42,28 @@ scope ActorSystem {
     }
 }
 
+scope EffectsSystem {
+    event RunEffect {
+        From: Server,
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: struct {
+            Effect: string,
+            Targets: Instance(Model)[]
+        }
+    }
+
+    event StopEffect {
+        From: Server,
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: struct {
+            Effect: string,
+            Targets: Instance(Model)[]
+        }
+    }
+}
+
 scope GunSystem {
 
 }
