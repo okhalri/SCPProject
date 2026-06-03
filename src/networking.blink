@@ -64,6 +64,46 @@ scope EffectsSystem {
     }
 }
 
+scope TeamSystem {
+    struct PlayerData {
+        Team: string,
+        SubTeam: string,
+        GroupRank: number,
+    }
+
+    map PlayerToPlayerData {
+        [Instance(Player)]: PlayerData
+    }
+
+    event RequestAll {
+        From: Client,
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: boolean
+    },
+
+    event RequestArray {
+        From: Client, 
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: Instance(Player)[]
+    }
+
+    event Update {
+        From: Server,
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: PlayerToPlayerData
+    }
+
+    event Clear {
+        From: Server, 
+        Type: Reliable,
+        Call: SingleAsync,
+        Data: Instance(Player)[]
+    }
+}
+
 scope GunSystem {
 
 }
