@@ -23,7 +23,36 @@ const Public = {} :: Types.ServerSCP
 const Config = require(script.Parent.Config)
 const SharedUtils = require(script.Parent.SharedUtils)
 
-local function iterate(HRP: BasePart, Iter: {[any]: {Position: Vector3, LookVector: Vector3}}): boolean
+const Moves = {
+	Move = function (Player: Player, ActorProfile: Types.ActorData, Goal: Vector3): (boolean, string?)
+		const Character = Player.Character :: Model & {HumanoidRootPart: BasePart}
+		if not Character then
+			return false, "How did we get here?"
+		end
+
+		if typeof(Goal) ~= "Vector3" and typeof(Goal) ~= "vector" then
+			--TODO: Integrate into a shared weird behavior logging system.
+			Player:Kick("baka~!")
+			return false, "Stinkin' cheater."
+		end
+
+		if IsBeingObserved(Character) then 
+			return false, "You're being observed!"
+		end
+
+		const Ground = workspace:Raycast(Goal+Vector3.new(0, 2, 0), Vector3.new(0, -10, 0), SharedUtils.ObservationParams)
+		if not Ground then
+			return false, "Who's neck you tryna break up there? 🤣🤣🤣🤣🤣"
+		end
+
+		const Rotation = CFrame.new(Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1), Goal * Vector3.new(1, 0, 1)).Rotation
+		Character:PivotTo(CFrame.new(Goal + Vector3.new(0, 3.5, 0)) * Rotation)
+
+		return true
+	end
+}
+
+const function iterate(HRP: BasePart, Iter: {[any]: {Position: Vector3, LookVector: Vector3}}): boolean
 	for i, Vectors in Iter do
 		const DisplacementVector = (HRP.Position - Vectors.Position)
 		if DisplacementVector.Magnitude > 200 then
@@ -50,32 +79,7 @@ const function IsBeingObserved(SCPModel: Model & {HumanoidRootPart: BasePart}): 
 	return iterate(HumanoidRootPart, HeadVectors.Data.NPCs) or iterate(HumanoidRootPart, HeadVectors.Data.Players)
 end
 
-const function Move(Player: Player, ActorProfile: Types.ActorData, Goal: Vector3): (boolean, string?)
-	const Character = Player.Character :: Model & {HumanoidRootPart: BasePart}
-	if not Character then
-		return false, "How did we get here?"
-	end
 
-	if typeof(Goal) ~= "Vector3" and typeof(Goal) ~= "vector" then
-		--TODO: Integrate into a shared weird behavior logging system.
-		Player:Kick("baka~!")
-		return false, "Stinkin' cheater."
-	end
-
-	if IsBeingObserved(Character) then 
-		return false, "You're being observed!"
-	end
-
-	const Ground = workspace:Raycast(Goal+Vector3.new(0, 2, 0), Vector3.new(0, -10, 0), SharedUtils.ObservationParams)
-	if not Ground then
-		return false, "Who's neck you tryna break up there? 🤣🤣🤣🤣🤣"
-	end
-
-	const Rotation = CFrame.new(Character.HumanoidRootPart.Position * Vector3.new(1, 0, 1), Goal * Vector3.new(1, 0, 1)).Rotation
-	Character:PivotTo(CFrame.new(Goal + Vector3.new(0, 3.5, 0)) * Rotation)
-
-	return true
-end
 
 function Public.CanPlayAs(Player: Player): boolean
 	return true
@@ -101,6 +105,7 @@ const function SetCooldownOnPass<T...>(ActorProfile: Types.ActorData, Move: stri
 	return accepted, notice
 end
 
+
 function Public.UseMove(Player: Player, ActorProfile: Types.ActorData, DesiredMove: string, ...): (boolean, string?)
 	const OnCDUntil = ActorProfile.Cooldowns[DesiredMove] or 0
 
@@ -108,7 +113,9 @@ function Public.UseMove(Player: Player, ActorProfile: Types.ActorData, DesiredMo
 		return false, "Move is on CD."
 	end
 
-	if DesiredMove == "Move" then
+	const Move = Moves[DesiredMove]
+	
+	if Move then
 		return SetCooldownOnPass(ActorProfile, DesiredMove, Move, Player, ActorProfile, ...)
 	end
 

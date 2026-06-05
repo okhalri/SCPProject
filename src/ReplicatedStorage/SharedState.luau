@@ -7,11 +7,16 @@
 
     halri :3
 ]]
-
 const ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 const Charm = require(ReplicatedStorage.Dependencies.Charm)
 
 return {
-       
+    IsSCP = Charm.atom(false),
+    SpawnedIn = Charm.atom(false),
+    Level = Charm.atom(0),
+    Team = Charm.atom("None"),
+    SubTeam = Charm.atom("None")    
 }
+
+
